@@ -1,9 +1,10 @@
 package main
 
-// import (
-// 	"./pkg/infrastructure"
-// )
+import (
+	"github.com/tmkshy1908/NotificationBot/pkg/infrastructure"
+)
 
-// func main() {
-// 	infrastructure.NewServer()
-// }
+func main() {
+	// fmt.Println("aaa")
+	infrastructure.NewServer()
+}
