@@ -1,10 +1,16 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/tmkshy1908/NotificationBot/pkg/infrastructure"
+	"github.com/tmkshy1908/NotificationBot/pkg/infrastructure/line"
 )
 
 func main() {
-	// fmt.Println("aaa")
-	infrastructure.NewServer()
+	bot, err := line.NewLineClient()
+	if err != nil {
+		fmt.Println(err)
+	}
+	infrastructure.NewServer(bot)
 }
