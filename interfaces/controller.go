@@ -13,6 +13,7 @@ type CommonController struct {
 }
 type Controller interface {
 	Sayhello(http.ResponseWriter, *http.Request)
+	LineHandller(http.ResponseWriter, *http.Request)
 }
 
 func NewController(LineHandller line.LineClient) (cc *CommonController) {
@@ -28,4 +29,8 @@ func NewController(LineHandller line.LineClient) (cc *CommonController) {
 
 func (cc *CommonController) Sayhello(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintf(w, "ajaaaaaaa")
+}
+
+func (cc *CommonController) LineHandller(w http.ResponseWriter, req *http.Request) {
+	cc.Interactor.DivideMessage(req)
 }
