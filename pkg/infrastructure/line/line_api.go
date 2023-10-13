@@ -1,6 +1,7 @@
 package line
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -12,7 +13,7 @@ type LineConf struct {
 }
 
 type LineClient interface {
-	CathEvents(*http.Request) (string, string)
+	CathEvents(context.Context, *http.Request) (string, string)
 	MsgReply(string, string)
 }
 
@@ -31,7 +32,7 @@ func NewLineClient() (lc LineClient, err error) {
 	return
 }
 
-func (bot *LineConf) CathEvents(req *http.Request) (msg string, userId string) {
+func (bot *LineConf) CathEvents(ctx context.Context, req *http.Request) (msg string, userId string) {
 	events, err := bot.Bot.ParseRequest(req)
 	if err != nil {
 		fmt.Println("ParseReq", err)
@@ -66,6 +67,7 @@ func (bot *LineConf) MsgReply(msg string, userId string) {
 	if _, err := bot.Bot.PushMessage(userId, linebot.NewTextMessage(msg)).Do(); err != nil {
 		fmt.Println(err, "プッシュエラー")
 	}
+	fmt.Println(userId)
 	// replyMessage := linebot.NewTextMessage(msg)
 	// bot.Bot.BroadcastMessage(replyMessage).Do()
 }

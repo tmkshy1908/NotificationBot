@@ -1,8 +1,10 @@
 package interfaces
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/tmkshy1908/NotificationBot/pkg/infrastructure/line"
 	"github.com/tmkshy1908/NotificationBot/usecase"
@@ -32,5 +34,8 @@ func (cc *CommonController) Sayhello(w http.ResponseWriter, req *http.Request) {
 }
 
 func (cc *CommonController) LineHandller(w http.ResponseWriter, req *http.Request) {
-	cc.Interactor.DivideMessage(req)
+	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
+	defer cancel()
+	cc.Interactor.DivideMessage(ctx, req)
+	// cc.Interactor.TimeAlarm(ctx)
 }

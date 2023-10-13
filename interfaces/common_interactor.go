@@ -1,7 +1,11 @@
 package interfaces
 
-import "net/http"
+import (
+	"context"
+	"net/http"
+)
 
 type CommonInteractor interface {
-	DivideMessage(*http.Request)
+	DivideMessage(context.Context, *http.Request)
+	TimeAlarm(context.Context)
 }
