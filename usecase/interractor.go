@@ -1,8 +1,12 @@
 package usecase
 
-import "net/http"
+import (
+	"context"
+	"net/http"
+)
 
 type CommonRepository interface {
-	DivideEvent(*http.Request) (string, string)
+	DivideEvent(context.Context, *http.Request) (string, string)
 	CallReply(string, string)
+	TimeSet(context.Context, string)
 }
