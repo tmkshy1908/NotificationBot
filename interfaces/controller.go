@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/tmkshy1908/NotificationBot/pkg/infrastructure/db"
 	"github.com/tmkshy1908/NotificationBot/pkg/infrastructure/line"
 	"github.com/tmkshy1908/NotificationBot/usecase"
 )
@@ -18,10 +19,11 @@ type Controller interface {
 	LineHandller(http.ResponseWriter, *http.Request)
 }
 
-func NewController(LineHandller line.LineClient) (cc *CommonController) {
+func NewController(SqlHandler db.SqlHandler, LineHandller line.LineClient) (cc *CommonController) {
 	cc = &CommonController{
 		Interactor: &usecase.CommonInteractor{
 			CommonRepository: &CommonRepository{
+				DB:  SqlHandler,
 				Bot: LineHandller,
 			},
 		},
@@ -36,6 +38,6 @@ func (cc *CommonController) Sayhello(w http.ResponseWriter, req *http.Request) {
 func (cc *CommonController) LineHandller(w http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
-	cc.Interactor.DivideMessage(ctx, req)
+	cc.Interactor.RootMain(ctx, req)
 	// cc.Interactor.TimeAlarm(ctx)
 }
