@@ -26,4 +26,5 @@ func (i *CommonInteractor) RootMain(ctx context.Context, req *http.Request) {
 	go i.CommonRepository.Alarm(ctx, userId, users)
 	i.CommonRepository.Delete(ctx, users)
 
+	// aa
 }
