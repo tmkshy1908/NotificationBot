@@ -39,5 +39,4 @@ func (cc *CommonController) LineHandller(w http.ResponseWriter, req *http.Reques
 	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
 	defer cancel()
 	cc.Interactor.RootMain(ctx, req)
-	// cc.Interactor.TimeAlarm(ctx)
 }

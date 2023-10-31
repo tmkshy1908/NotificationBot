@@ -11,7 +11,6 @@ type CommonInteractor struct {
 }
 
 func (i *CommonInteractor) RootMain(ctx context.Context, req *http.Request) {
-
 	msg, userId := i.CommonRepository.DivideEvent(ctx, req)
 	users, b := i.CommonRepository.DivideMessage(ctx, userId, msg)
 	if b == true {
@@ -23,8 +22,7 @@ func (i *CommonInteractor) RootMain(ctx context.Context, req *http.Request) {
 	}
 	i.CommonRepository.CallReply(msg, userId)
 
+	defer i.CommonRepository.Delete(ctx, users)
 	go i.CommonRepository.Alarm(ctx, userId, users)
-	i.CommonRepository.Delete(ctx, users)
-
-	// aa
+	// i.CommonRepository.Delete(ctx, users)
 }
