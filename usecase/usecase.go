@@ -22,7 +22,6 @@ func (i *CommonInteractor) RootMain(ctx context.Context, req *http.Request) {
 	}
 	i.CommonRepository.CallReply(msg, userId)
 
-	defer i.CommonRepository.Delete(ctx, users)
+	// defer i.CommonRepository.Delete(ctx, users)
 	go i.CommonRepository.Alarm(ctx, userId, users)
-	// i.CommonRepository.Delete(ctx, users)
 }
