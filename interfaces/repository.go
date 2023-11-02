@@ -91,7 +91,7 @@ func (r *CommonRepository) Alarm(ctx context.Context, userId string, users *doma
 				timeValue = timeValue.Add(24 * time.Hour)
 				msg := "時間です"
 				r.Bot.MsgReply(msg, users.Id)
-				// r.Delete(ctx, users)
+				r.Delete(ctx, users)
 			}
 			time.Sleep(timeValue.Sub(now))
 		}
