@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/tmkshy1908/NotificationBot/pkg/infrastructure/db"
 	"github.com/tmkshy1908/NotificationBot/pkg/infrastructure/line"
@@ -36,7 +35,6 @@ func (cc *CommonController) Sayhello(w http.ResponseWriter, req *http.Request) {
 }
 
 func (cc *CommonController) LineHandller(w http.ResponseWriter, req *http.Request) {
-	ctx, cancel := context.WithTimeout(context.Background(), 180*time.Second)
-	defer cancel()
+	ctx := context.Background()
 	cc.Interactor.RootMain(ctx, req)
 }
