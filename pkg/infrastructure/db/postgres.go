@@ -68,8 +68,8 @@ func (h *SqlConf) QueryRow(ctx context.Context, query string, args ...interface{
 func (h *SqlConf) ExecWithTx(txFunc func(*sql.Tx) error) (err error) {
 	tx, err := h.Conn.Begin()
 	if err != nil {
-		log.Println(err, "##withTx##")
-		return
+		log.Println("##withTx##")
+		return err
 	}
 
 	defer func() {
@@ -83,7 +83,7 @@ func (h *SqlConf) ExecWithTx(txFunc func(*sql.Tx) error) (err error) {
 				err = rollbackErr
 			}
 		} else {
-			fmt.Println(err, "##commit##")
+			fmt.Println("##commit##")
 			err = tx.Commit()
 		}
 	}()

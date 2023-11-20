@@ -36,5 +36,7 @@ func (cc *CommonController) Sayhello(w http.ResponseWriter, req *http.Request) {
 
 func (cc *CommonController) LineHandller(w http.ResponseWriter, req *http.Request) {
 	ctx := context.Background()
-	cc.Interactor.RootMain(ctx, req)
+	if err := cc.Interactor.RootMain(ctx, req); err != nil {
+		fmt.Println(err)
+	}
 }

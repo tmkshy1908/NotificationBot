@@ -1,7 +1,12 @@
 package domain
 
-type Users struct {
+type UserTime struct {
 	Id     string
 	Hour   int
 	Minute int
+}
+
+type UserMsg struct {
+	Id      string
+	Message string
 }

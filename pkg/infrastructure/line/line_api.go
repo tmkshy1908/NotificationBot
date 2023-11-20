@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/line/line-bot-sdk-go/linebot"
+	"github.com/tmkshy1908/NotificationBot/domain"
 )
 
 type LineConf struct {
@@ -13,26 +15,27 @@ type LineConf struct {
 }
 
 type LineClient interface {
-	CathEvents(context.Context, *http.Request) (string, string)
-	MsgReply(string, string)
+	CathEvents(context.Context, *http.Request) (*domain.UserMsg, error)
+	MsgReply(*domain.UserMsg) error
 }
 
 func NewLineClient() (lc LineClient, err error) {
 	bot, err := linebot.New(
-		"e29ca6d4357cc977c61591eae223aef4",
-		"FWbGlGdJpRuj5snIzBYGHIxSWrLJ2usY2mrsdqjsFplBZzg4DpFZxOAu+VZAUkvz7Sr3IAv51KmQJRh1T9z2HZmDWS/1cOfrb2HwtC0+GqDJKoiGiwkTmsL5Ar3S/vWYw2Yn8Vz1YvrEVzay36EJvwdB04t89/1O/w1cDnyilFU=",
+		os.Getenv("CHANNEL_SECRET"),
+		os.Getenv("ACCESS_TOKEN"),
 	)
 	if err != nil {
-		fmt.Println("##NewLineClient err##", err)
+		fmt.Println("##NewLineClient err##")
+		return nil, err
 	} else {
-		fmt.Println("##LineClient OK##")
+		fmt.Println("LineClient Connected.")
 	}
 
 	lc = &LineConf{Bot: bot}
 	return
 }
 
-func (bot *LineConf) CathEvents(ctx context.Context, req *http.Request) (msg string, userId string) {
+func (bot *LineConf) CathEvents(ctx context.Context, req *http.Request) (umsg *domain.UserMsg, err error) {
 	events, err := bot.Bot.ParseRequest(req)
 	if err != nil {
 		fmt.Println("ParseReq", err)
@@ -40,21 +43,21 @@ func (bot *LineConf) CathEvents(ctx context.Context, req *http.Request) (msg str
 	for _, event := range events {
 
 		if event.Type == linebot.EventTypeMessage {
-			userId = event.Source.UserID
+			userId := event.Source.UserID
 
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
-				msg = message.Text
-				bot.MsgReply(msg, userId)
-				// if _, err := bot.Bot.PushMessage(userId, linebot.NewTextMessage(msg)).Do(); err != nil {
-				// 	fmt.Println(err, "プッシュエラー")
-				// }
+				msg := message.Text
+				umsg = &domain.UserMsg{Id: userId, Message: msg}
 
 			case *linebot.StickerMessage:
-				bot.MsgReply("いいスタンプだね", userId)
+				msg := "いいスタンプだね"
+				umsg = &domain.UserMsg{Id: userId, Message: msg}
 
 			case *linebot.ImageMessage:
-				bot.MsgReply("いい画像だね", userId)
+				msg := "いい写真だね"
+				umsg = &domain.UserMsg{Id: userId, Message: msg}
+
 			}
 		} else {
 			fmt.Println("EventTypeが違う")
@@ -63,11 +66,12 @@ func (bot *LineConf) CathEvents(ctx context.Context, req *http.Request) (msg str
 	return
 }
 
-func (bot *LineConf) MsgReply(msg string, userId string) {
+func (bot *LineConf) MsgReply(umsg *domain.UserMsg) (err error) {
+	userId := umsg.Id
+	msg := umsg.Message
 	if _, err := bot.Bot.PushMessage(userId, linebot.NewTextMessage(msg)).Do(); err != nil {
-		fmt.Println(err, "プッシュエラー")
+		fmt.Println("##MsgReply Pushmessage##")
+		return err
 	}
-	fmt.Println(userId)
-	// replyMessage := linebot.NewTextMessage(msg)
-	// bot.Bot.BroadcastMessage(replyMessage).Do()
+	return
 }

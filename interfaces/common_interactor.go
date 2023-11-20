@@ -6,5 +6,5 @@ import (
 )
 
 type CommonInteractor interface {
-	RootMain(context.Context, *http.Request)
+	RootMain(context.Context, *http.Request) error
 }

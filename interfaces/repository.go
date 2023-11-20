@@ -20,13 +20,13 @@ type CommonRepository struct {
 }
 
 const (
-	INSERT_USERS string = "insert into users (id, hour, minute) values ($1,$2,$3)"
-	DELETE_USERS string = "delete from users where id = $1"
+	INSERT_USERTIME string = "insert into usertime (id, hour, minute) values ($1,$2,$3)"
+	DELETE_USERTIME string = "delete from usertime where id = $1"
 )
 
-func (r *CommonRepository) Add(ctx context.Context, users *domain.Users) (err error) {
+func (r *CommonRepository) Add(ctx context.Context, usertime *domain.UserTime) (err error) {
 	err = r.DB.ExecWithTx(func(*sql.Tx) error {
-		_, err = r.DB.Exec(ctx, INSERT_USERS, users.Id, users.Hour, users.Minute)
+		_, err = r.DB.Exec(ctx, INSERT_USERTIME, usertime.Id, usertime.Hour, usertime.Minute)
 		if err != nil {
 			fmt.Println(err, "##Rep_Exec##")
 		}
@@ -35,9 +35,9 @@ func (r *CommonRepository) Add(ctx context.Context, users *domain.Users) (err er
 	return
 }
 
-func (r *CommonRepository) Delete(ctx context.Context, users *domain.Users) (err error) {
+func (r *CommonRepository) Delete(ctx context.Context, usertime *domain.UserTime) (err error) {
 	err = r.DB.ExecWithTx(func(*sql.Tx) error {
-		_, err = r.DB.Exec(ctx, DELETE_USERS, users.Id)
+		_, err = r.DB.Exec(ctx, DELETE_USERTIME, usertime.Id)
 		if err != nil {
 			fmt.Println(err, "##Rep_Delete##")
 		}
@@ -48,17 +48,18 @@ func (r *CommonRepository) Delete(ctx context.Context, users *domain.Users) (err
 
 var timeMatcher = regexp.MustCompile("([0-9]+)時([0-9]+)分")
 
-func (r *CommonRepository) DivideEvent(ctx context.Context, req *http.Request) (msg string, userId string) {
-	msg, userId = r.Bot.CathEvents(ctx, req)
+func (r *CommonRepository) DivideEvent(ctx context.Context, req *http.Request) (umsg *domain.UserMsg, err error) {
+	umsg, err = r.Bot.CathEvents(ctx, req)
 	return
 }
 
-func (r *CommonRepository) DivideMessage(ctx context.Context, userId string, msg string) (users *domain.Users, b bool) {
-	m := timeMatcher.FindStringSubmatch(msg)
+func (r *CommonRepository) DivideMessage(ctx context.Context, umsg *domain.UserMsg) (usertime *domain.UserTime, b bool, err error) {
+	m := timeMatcher.FindStringSubmatch(umsg.Message)
 	if len(m) == 3 {
 		hour, err := strconv.Atoi(m[1])
-
-		// return "何時ですか？"
+		if err != nil {
+			// return "何時ですか？"
+		}
 		minute, err := strconv.Atoi(m[2])
 		if err != nil {
 			// return "何分ですか？"
@@ -67,33 +68,44 @@ func (r *CommonRepository) DivideMessage(ctx context.Context, userId string, msg
 		if err != nil {
 			// return "時間の設定に失敗しました"
 		}
-		users = &domain.Users{Id: userId, Hour: hour, Minute: minute}
-		msg = fmt.Sprintf("%v時%v分ですね。わかりました。", hour, minute)
-		r.Bot.MsgReply(msg, userId)
+		userId := umsg.Id
+		usertime = &domain.UserTime{Id: userId, Hour: hour, Minute: minute}
+		msg := fmt.Sprintf("%v時%v分ですね。わかりました。", hour, minute)
+		umsg := &domain.UserMsg{Id: userId, Message: msg}
+		r.Bot.MsgReply(umsg)
 
-		return users, true
+		return usertime, true, err
 	} else {
-		return nil, false
+		return nil, false, err
 	}
 
 }
 
-func (r *CommonRepository) CallReply(msg string, userId string) {
-	r.Bot.MsgReply(msg, userId)
+func (r *CommonRepository) CallReply(umsg *domain.UserMsg) (err error) {
+	if err = r.Bot.MsgReply(umsg); err != nil {
+		return err
+	}
+	return
 }
 
-func (r *CommonRepository) Alarm(ctx context.Context, userId string, users *domain.Users) {
-	if users != nil {
+func (r *CommonRepository) Alarm(ctx context.Context, usertime *domain.UserTime) (err error) {
+	if usertime != nil {
 		for {
 			now := time.Now()
-			timeValue := time.Date(now.Year(), now.Month(), now.Day(), users.Hour, users.Minute, 0, 0, now.Location())
+			timeValue := time.Date(now.Year(), now.Month(), now.Day(), usertime.Hour, usertime.Minute, 0, 0, now.Location())
 			if now.After(timeValue) {
 				timeValue = timeValue.Add(24 * time.Hour)
 				msg := "時間です"
-				r.Bot.MsgReply(msg, users.Id)
-				r.Delete(ctx, users)
+				umsg := &domain.UserMsg{Id: usertime.Id, Message: msg}
+				if err = r.Bot.MsgReply(umsg); err != nil {
+					return err
+				}
+				if err = r.Delete(ctx, usertime); err != nil {
+					return err
+				}
 			}
 			time.Sleep(timeValue.Sub(now))
 		}
 	}
+	return
 }
