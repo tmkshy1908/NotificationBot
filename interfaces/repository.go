@@ -78,7 +78,6 @@ func (r *CommonRepository) DivideMessage(ctx context.Context, umsg *domain.UserM
 	} else {
 		return nil, false, err
 	}
-
 }
 
 func (r *CommonRepository) CallReply(umsg *domain.UserMsg) (err error) {

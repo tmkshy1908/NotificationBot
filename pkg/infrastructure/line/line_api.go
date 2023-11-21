@@ -40,6 +40,7 @@ func (bot *LineConf) CathEvents(ctx context.Context, req *http.Request) (umsg *d
 	if err != nil {
 		fmt.Println("ParseReq", err)
 	}
+	umsg = &domain.UserMsg{Id: "", Message: ""}
 	for _, event := range events {
 
 		if event.Type == linebot.EventTypeMessage {
