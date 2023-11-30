@@ -29,9 +29,9 @@ type SqlHandler interface {
 
 func NewHandler() (h SqlHandler, err error) {
 	conf := dbSettings{
-		Host:     "localhost",
+		Host:     "db",
 		Database: "notificationdb",
-		User:     "postgres",
+		User:     "yamadatarou",
 		Password: "1234",
 	}
 

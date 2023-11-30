@@ -1,0 +1,31 @@
+services:
+  db:
+    container_name: db-container
+    image: postgres:12.0
+    volumes:
+      - ./initDB:/docker-entrypoint-initdb.d
+      - db-data:/var/lib/postgresql/data
+    tty: true
+    environment:
+      POSTGRES_USER: yamadatarou
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: notificationdb
+    hostname: db-server
+    ports:
+      - "5432:5432"
+
+  app:
+    build:
+     context: .
+     dockerfile: Dockerfile
+    container_name: app-container
+    hostname: web-server
+    ports:
+     - "8080:8080"
+    tty: true
+    depends_on:
+      - db
+
+
+volumes:
+ db-data:
