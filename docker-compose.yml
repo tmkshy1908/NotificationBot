@@ -25,6 +25,8 @@ services:
     tty: true
     depends_on:
       - db
+    environment:
+      TZ: Asia/Tokyo
 
 
 volumes:

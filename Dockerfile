@@ -1,10 +1,10 @@
 FROM golang:1.19-buster
 
-RUN mkdir app
-
 WORKDIR /app
 
 COPY . /app
+
+RUN go mod download
 
 EXPOSE 8080
 
