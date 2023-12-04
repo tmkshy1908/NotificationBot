@@ -97,9 +97,11 @@ func (r *CommonRepository) Alarm(ctx context.Context, usertime *domain.UserTime)
 				msg := "時間です"
 				umsg := &domain.UserMsg{Id: usertime.Id, Message: msg}
 				if err = r.Bot.MsgReply(umsg); err != nil {
+					fmt.Println(err)
 					return err
 				}
 				if err = r.Delete(ctx, usertime); err != nil {
+					fmt.Println(err)
 					return err
 				}
 			}
