@@ -7,9 +7,9 @@ services:
       - db-data:/var/lib/postgresql/data
     tty: true
     environment:
-      POSTGRES_USER: yamadatarou
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: notificationdb
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASSWORD
+      POSTGRES_DB: $DB_DATABASE
     hostname: db-server
     ports:
       - "5432:5432"
@@ -25,8 +25,6 @@ services:
     tty: true
     depends_on:
       - db
-    environment:
-      TZ: Asia/Tokyo
 
 
 volumes:

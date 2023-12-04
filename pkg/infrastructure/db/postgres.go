@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/lib/pq"
 )
@@ -29,11 +30,10 @@ type SqlHandler interface {
 
 func NewHandler() (h SqlHandler, err error) {
 	conf := dbSettings{
-		// Host: "localhost",
-		Host:     "db",
-		Database: "notificationdb",
-		User:     "yamadatarou",
-		Password: "1234",
+		Host:     os.Getenv("DB_HOST"),
+		Database: os.Getenv("DB_DATABASE"),
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
 	}
 
 	connectionString := fmt.Sprintf("host=%s user=%s dbname=%s password=%s sslmode=disable sslmode=disable", conf.Host, conf.User, conf.Database, conf.Password)
