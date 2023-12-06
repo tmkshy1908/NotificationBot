@@ -53,7 +53,7 @@ func (r *CommonRepository) DivideEvent(ctx context.Context, req *http.Request) (
 	return
 }
 
-func (r *CommonRepository) DivideMessage(ctx context.Context, umsg *domain.UserMsg, tc chan<- *domain.UserTime) (usertime *domain.UserTime, b bool, err error) {
+func (r *CommonRepository) DivideMessage(ctx context.Context, umsg *domain.UserMsg) (usertime *domain.UserTime, b bool, err error) {
 	m := timeMatcher.FindStringSubmatch(umsg.Message)
 	if len(m) == 3 {
 		hour, err := strconv.Atoi(m[1])
@@ -73,7 +73,6 @@ func (r *CommonRepository) DivideMessage(ctx context.Context, umsg *domain.UserM
 		msg := fmt.Sprintf("%v時%v分ですね。わかりました。", hour, minute)
 		umsg := &domain.UserMsg{Id: userId, Message: msg}
 		r.Bot.MsgReply(umsg)
-		tc <- usertime
 		return usertime, true, err
 	} else {
 		return nil, false, err
@@ -87,7 +86,8 @@ func (r *CommonRepository) CallReply(umsg *domain.UserMsg) (err error) {
 	return
 }
 
-func (r *CommonRepository) Alarm(ctx context.Context, usertime *domain.UserTime) (err error) {
+func (r *CommonRepository) Alarm(ctx context.Context, tc <-chan *domain.UserTime) (err error) {
+	usertime := <-tc
 	for {
 		now := time.Now()
 		timeValue := time.Date(now.Year(), now.Month(), now.Day(), usertime.Hour, usertime.Minute, 0, 0, now.Location())

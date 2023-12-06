@@ -17,7 +17,7 @@ func (i *CommonInteractor) RootMain(ctx context.Context, req *http.Request) (err
 	if err != nil {
 		return err
 	}
-	usertime, b, err := i.CommonRepository.DivideMessage(ctx, umsg, tc)
+	usertime, b, err := i.CommonRepository.DivideMessage(ctx, umsg)
 	if err != nil {
 		return err
 	}
@@ -29,8 +29,10 @@ func (i *CommonInteractor) RootMain(ctx context.Context, req *http.Request) (err
 	if err = i.CommonRepository.CallReply(umsg); err != nil {
 		return err
 	}
-	at := <-tc
+	// at := <-tc
+	tc <- usertime
+	close(tc)
 	ctx = context.Background()
-	go i.CommonRepository.Alarm(ctx, at)
+	go i.CommonRepository.Alarm(ctx, tc)
 	return
 }
