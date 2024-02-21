@@ -18,7 +18,8 @@ type dbSettings struct {
 	Host     string
 	User     string
 	Password string
-	Database string
+	Port     string
+	Name     string
 }
 
 type SqlHandler interface {
@@ -31,21 +32,25 @@ type SqlHandler interface {
 func NewHandler() (h SqlHandler, err error) {
 	conf := dbSettings{
 		Host:     os.Getenv("DB_HOST"),
-		Database: os.Getenv("DB_DATABASE"),
 		User:     os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASSWORD"),
+		Port:     os.Getenv("DB_PORT"),
+		Name:     os.Getenv("DB_NAME"),
 	}
 
-	connectionString := fmt.Sprintf("host=%s user=%s dbname=%s password=%s sslmode=disable sslmode=disable", conf.Host, conf.User, conf.Database, conf.Password)
+	connectionString := fmt.Sprintf("host=%s user=%s password=%s port=%s database=%s", conf.Host, conf.User, conf.Password, conf.Port, conf.Name)
 
 	db, err := sql.Open("postgres", connectionString)
 	if err != nil {
 		fmt.Println(err)
 		return
 	} else {
-		fmt.Println("DB Connected.")
+		err = db.Ping()
+		if err != nil {
+			fmt.Println("DB接続エラー: ", err)
+		}
 	}
-
+	fmt.Println("DB Connected.")
 	h = &SqlConf{Conn: db}
 
 	return

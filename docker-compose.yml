@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_USER: $DB_USER
       POSTGRES_PASSWORD: $DB_PASSWORD
-      POSTGRES_DB: $DB_DATABASE
+      POSTGRES_DB: $DB_NAME
     hostname: db-server
     ports:
       - "5432:5432"
@@ -17,7 +17,7 @@ services:
   app:
     build:
      context: .
-     dockerfile: Dockerfile
+     dockerfile: Dockerfile.test
     container_name: app-container
     hostname: web-server
     ports:
