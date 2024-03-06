@@ -15,8 +15,8 @@ type LineConf struct {
 }
 
 type LineClient interface {
-	CathEvents(context.Context, *http.Request) (*domain.UserMsg, error)
-	MsgReply(*domain.UserMsg) error
+	CathEvents(context.Context, *http.Request) (*domain.UserStates, error)
+	MsgReply(*domain.UserStates) error
 }
 
 func NewLineClient() (lc LineClient, err error) {
@@ -35,12 +35,12 @@ func NewLineClient() (lc LineClient, err error) {
 	return
 }
 
-func (bot *LineConf) CathEvents(ctx context.Context, req *http.Request) (umsg *domain.UserMsg, err error) {
+func (bot *LineConf) CathEvents(ctx context.Context, req *http.Request) (umsg *domain.UserStates, err error) {
 	events, err := bot.Bot.ParseRequest(req)
 	if err != nil {
 		fmt.Println("ParseReq", err)
 	}
-	umsg = &domain.UserMsg{Id: "", Message: ""}
+	umsg = &domain.UserStates{Id: "", Message: ""}
 	for _, event := range events {
 
 		if event.Type == linebot.EventTypeMessage {
@@ -49,15 +49,15 @@ func (bot *LineConf) CathEvents(ctx context.Context, req *http.Request) (umsg *d
 			switch message := event.Message.(type) {
 			case *linebot.TextMessage:
 				msg := message.Text
-				umsg = &domain.UserMsg{Id: userId, Message: msg}
+				umsg = &domain.UserStates{Id: userId, Message: msg}
 
 			case *linebot.StickerMessage:
 				msg := "いいスタンプだね"
-				umsg = &domain.UserMsg{Id: userId, Message: msg}
+				umsg = &domain.UserStates{Id: userId, Message: msg}
 
 			case *linebot.ImageMessage:
 				msg := "いい写真だね"
-				umsg = &domain.UserMsg{Id: userId, Message: msg}
+				umsg = &domain.UserStates{Id: userId, Message: msg}
 
 			}
 		} else {
@@ -67,7 +67,7 @@ func (bot *LineConf) CathEvents(ctx context.Context, req *http.Request) (umsg *d
 	return
 }
 
-func (bot *LineConf) MsgReply(umsg *domain.UserMsg) (err error) {
+func (bot *LineConf) MsgReply(umsg *domain.UserStates) (err error) {
 	userId := umsg.Id
 	msg := umsg.Message
 	if _, err := bot.Bot.PushMessage(userId, linebot.NewTextMessage(msg)).Do(); err != nil {
